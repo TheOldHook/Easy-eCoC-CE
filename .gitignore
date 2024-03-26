@@ -1,2 +1,5 @@
 *.db
 *.log
+/build/
+/dist/
+/*.spec
