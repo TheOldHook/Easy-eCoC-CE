@@ -1,6 +1,17 @@
+<table>
+<tr>
+<td><img src="img/Icon.png" alt="Logo of Easy eCoC" title="Easy eCoC Logo" width="100"></td>
+<td>
+
 # Easy eCoC Community Edition
 
 The Easy eCoC (Electronic Certificate of Conformity) application facilitates the automated processing and submission of vehicle data to the Statens Vegvesen eCOC service. It's designed to streamline the workflow for vehicle pre-registration processes, integrating functionalities like XML parsing, database management, and secure communication with Vegvesen's APIs.
+
+</td>
+</tr>
+</table>
+
+
 
 ## Features
 
