@@ -86,7 +86,7 @@ def main_app():
             'Content-Type': 'application/json'
         }
         
-        with open(file_path, "r", encoding='utf-16') as f:  # Set encoding to utf-16-le
+        with open(file_path, "r", encoding='utf-16') as f:  
             ivi_document = f.read()
             
         ivi_base64_encoded = base64.b64encode(ivi_document.encode()).decode()
@@ -847,7 +847,7 @@ def main_app():
     # Du kan da kopiere denne til maskinportalen for å generere en access token i demo miljøet
     
     def run_pubkeygen():
-            # Step 1: Generate RSA key pair
+
         private_key = asymmetric.rsa.generate_private_key(
             public_exponent=65537,
             key_size=2048,
