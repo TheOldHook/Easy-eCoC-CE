@@ -1,0 +1,9 @@
+requests
+pyperclip
+ttkbootstrap
+cryptography
+python-jose
+jwt
+uuid
+sqlite3
+json
