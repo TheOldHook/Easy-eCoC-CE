@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="utf-16"?>
+<InitialVehicleInformation xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Header>
+    <IVIReferenceId>GENERER_BUTTON_CREATESTHIS</IVIReferenceId>
+    <VersionNumberXsd>1.1</VersionNumberXsd>
+  </Header>
+  <Body>
+    <CocDataGroup>
+      <VehicleIdentificationNumber>WILL_BE_FILLED_IN_FROM_SOFTWARE</VehicleIdentificationNumber>
+
+      <StageOfCompletionCode>C</StageOfCompletionCode>
+      <TypeApprovalTypeCode>NAT</TypeApprovalTypeCode>
+      <Type></Type>
+      <Variant></Variant>
+      <Version></Version>
+      <VehicleCategoryCode>T1b</VehicleCategoryCode>
+      <TypeApprovalNumber>THE_NGN_TYPE_APPROVALNUMBER</TypeApprovalNumber>
+	  <DateOfManufactureVeh>2024-01-01</DateOfManufactureVeh>
+
+	  <!--Farge, 7 = Grønn, 1 = Hvit, 3 = Oransje-->
+      <PrimaryColourCode>3</PrimaryColourCode>
+	  <SecondaryColourCode>10</SecondaryColourCode>
+      <!--Farge, 7 = Grønn, 1 = Hvit, 3 = Oransje-->
+	  
+	  <!--GENERELT-->
+	  <VehicleWithMachineryMountedInd>N</VehicleWithMachineryMountedInd>
+	  <!--GENERELT-->
+
+      <MakeTable>
+        <MakeGroup>
+          <Make>The Make of your vehicle</Make>
+        </MakeGroup>
+      </MakeTable>
+
+	<!--Salgsvaremerke-->
+      <CommercialNameTable>
+        <CommercialNameGroup>
+          <CommercialName>CommercialName</CommercialName>
+        </CommercialNameGroup>
+      </CommercialNameTable>
+	<!--Salgsvaremerke-->
+
+
+	<!-- Akselinformasjon-->
+	  <NumberOfAxles>2</NumberOfAxles>
+	  <NumberOfWheels>4</NumberOfWheels>
+	  <NumberOfSteeredAxles>1</NumberOfSteeredAxles>
+	  <NumberOfPoweredAxles>2</NumberOfPoweredAxles>
+	  <NumberOfBrakedAxles>2</NumberOfBrakedAxles>
+		<AxleTable>
+			<AxleGroup>
+				<AxleNumber>1</AxleNumber>
+				<PoweredAxleInd>Y</PoweredAxleInd>
+				<TechnicallyPermMassAxle>650</TechnicallyPermMassAxle>
+				<AxleTrack>1446</AxleTrack>
+				<AxleTrackMinimum>1346</AxleTrackMinimum>
+				<AxleTrackMaximum>1446</AxleTrackMaximum>
+				<AxleWithAirSuspOrEquivInd>N</AxleWithAirSuspOrEquivInd>
+				<SteeredAxleInd>Y</SteeredAxleInd>
+				<TyreAxleTable>
+					<TyreAxleGroup>
+						<TyreSize>225/65R14</TyreSize>
+						<RimSizeIncludingOffSet>14</RimSizeIncludingOffSet>
+					</TyreAxleGroup>
+				</TyreAxleTable>
+			</AxleGroup>
+			<AxleGroup>
+				<AxleNumber>2</AxleNumber>
+				<TechnicallyPermMassAxle>950</TechnicallyPermMassAxle>
+				<AxleTrack>1446</AxleTrack>
+				<AxleTrackMinimum>1320</AxleTrackMinimum>
+				<AxleTrackMaximum>1420</AxleTrackMaximum>
+				<AxleWithAirSuspOrEquivInd>N</AxleWithAirSuspOrEquivInd>
+				<SteeredAxleInd>N</SteeredAxleInd>
+				<TyreAxleTable>
+					<TyreAxleGroup>
+						<TyreSize>275/50R14</TyreSize>
+						<RimSizeIncludingOffSet>14</RimSizeIncludingOffSet>
+					</TyreAxleGroup>
+				</TyreAxleTable>
+			</AxleGroup>
+		</AxleTable>
+	<!-- Akselinformasjon-->
+
+	<!-- Construction Characteristic for special purposes-->
+		<ProtectiveStructureTable>
+			<ProtectiveStructureGroup>
+				<ProtectiveStructureCode></ProtectiveStructureCode>
+				<ProtectiveStructureRopsByCode></ProtectiveStructureRopsByCode>
+				<ProtectiveStructureMake></ProtectiveStructureMake>
+	            <ProtectiveStructureEquipmCode></ProtectiveStructureEquipmCode>
+				<ProtectiveStructureFoldablCode></ProtectiveStructureFoldablCode>
+			</ProtectiveStructureGroup>
+		</ProtectiveStructureTable>
+
+
+		<ProtectHazardSubstCabineGroup>
+			<ProtectHazardSubstAerisolInd>Y</ProtectHazardSubstAerisolInd>
+			<ProtectHazardSubstDustFiltInd>Y</ProtectHazardSubstDustFiltInd>
+			<ProtectHazardSubstVapFilterInd>Y</ProtectHazardSubstVapFilterInd>
+		</ProtectHazardSubstCabineGroup>
+
+	<!-- Construction Characteristic for special purposes-->
+
+	  <!-- Dimensjoner -->
+	  <Length></Length>
+	  <Width></Width>
+	  <Height></Height>
+	  <Wheelbase></Wheelbase>
+	  <!-- Dimensjoner -->
+
+	  <!-- Vekter -->
+	  <MassOfTheVehicleInRunningOrder></MassOfTheVehicleInRunningOrder>
+	  <UnladenMassVehRunningOrderMax></UnladenMassVehRunningOrderMax>
+	  <UnladenMassVehRunningOrderMin></UnladenMassVehRunningOrderMin>
+	  <TechnPermMaxLadenMass></TechnPermMaxLadenMass>
+	  <MaxPermVertLoadCplPoint></MaxPermVertLoadCplPoint>
+	  <TechnPermMaxMassCombination></TechnPermMaxMassCombination>
+	  <BallastMassTotal></BallastMassTotal>
+	  <!-- Vekter -->
+
+	<!-- Tilhenger -->
+		<MechanicalCouplingTable>
+			<MechanicalCouplingGroup>
+				<TechPermMaxTowMassUnbrTrailer></TechPermMaxTowMassUnbrTrailer>
+				<TechPermMaxTowMassBrakedTrail></TechPermMaxTowMassBrakedTrail>
+				<TechPermMaxTowMassDrawbarTrail></TechPermMaxTowMassDrawbarTrail>
+				<TechPermMaxTowMassRigidTrail></TechPermMaxTowMassRigidTrail>
+				<TechPermMaxTowMassCentAxTrail></TechPermMaxTowMassCentAxTrail>
+				<MechanicalCouplingTypeEu></MechanicalCouplingTypeEu>
+				<MechnicalCouplingType>For påhengsvogn og slepevogn</MechnicalCouplingType>
+				<MechnicalCouplingMake>AH FORGINGS</MechnicalCouplingMake>
+				<CouplingCharacteristicValueS></CouplingCharacteristicValueS>
+				<CouplingCharacteristicValueD></CouplingCharacteristicValueD>
+				<DistanceCouplPointLastAxle></DistanceCouplPointLastAxle>
+			</MechanicalCouplingGroup>
+		</MechanicalCouplingTable>
+	<!-- Tilhenger -->
+
+
+	<!-- Motor -->
+		<EngineTable>
+			<EngineGroup>
+				<ManufacturerOfTheEngine>YANMAR</ManufacturerOfTheEngine>
+				<EngineCodeAsMarkedOnTheEngine></EngineCodeAsMarkedOnTheEngine>
+				<EngineEcTypeApprovalNumber></EngineEcTypeApprovalNumber>
+				<EngineCycleCode></EngineCycleCode>
+				<WorkingPrincipleCode></WorkingPrincipleCode>
+				<EngineNumber></EngineNumber>
+				<NumberOfCylinders></NumberOfCylinders>
+				<LocationOfEngineIdentification></LocationOfEngineIdentification>
+				<EngineCapacity></EngineCapacity>
+				<ArrangementOfCylindersCode></ArrangementOfCylindersCode>
+				<CategorySubCatEngine></CategorySubCatEngine>
+
+				<FuelTable>
+					<FuelGroup>
+						<FuelCode>81</FuelCode>
+						<MaximumNetPower>17.5</MaximumNetPower>
+						<MaximumSpeed>60</MaximumSpeed>
+						<DeclaredMaximumSpeedRearward>29</DeclaredMaximumSpeedRearward>
+						<ExtSoundLevelNrBaseRegulAct>82</ExtSoundLevelNrBaseRegulAct>
+						<SoundLevelStationary>78</SoundLevelStationary>
+						<SoundLevelStatEngineSpeed>3800</SoundLevelStatEngineSpeed>
+						<DriverPerceivedSoundLevel>86</DriverPerceivedSoundLevel>
+						<DriverPercSoundLevTestMethod>2</DriverPercSoundLevTestMethod>
+						<SpecificCO2Emissions>1048</SpecificCO2Emissions>
+					</FuelGroup>
+				</FuelTable>
+			</EngineGroup>
+		</EngineTable>
+	<!-- Motor -->
+
+
+	<!-- <TestprocedureNrscGroup>
+		<TestprocNrscCO>1.557</TestprocNrscCO>
+	</TestprocedureNrscGroup> -->
+
+	<!--Girboks-->
+	<GearGroup>
+		<GearboxTypeCode>C</GearboxTypeCode>
+	</GearGroup>
+
+	<!--Styring-->
+	<SteeringCategoryCode>POW</SteeringCategoryCode>
+	<!--Styring-->
+
+	<!-- Bremser-->
+	<AdvancedBrakingSystemCode>NON</AdvancedBrakingSystemCode>
+	<BrakingTable>
+		<BrakingGroup>
+		<ElectronicBrakingSystemCode>N</ElectronicBrakingSystemCode>
+		<BrakingTransmissionTechnCode>HYD</BrakingTransmissionTechnCode>
+		<BrakingDesc>hydrostatic without power assistance</BrakingDesc>
+		</BrakingGroup>
+	</BrakingTable>
+	<!-- Bremser-->
+
+	<!--ROLL OVER PROT STRUCT (ROPS)-->
+	<EcTypeApprovalNrRollOverHoop></EcTypeApprovalNrRollOverHoop>
+	<!--ROLL OVER PROT STRUCT (ROPS)-->
+
+
+	<!--Seating Positions-->
+	<NrOfSeatingPositions>2</NrOfSeatingPositions>
+	<NrOfSeatingPositionExclDriver>1</NrOfSeatingPositionExclDriver>
+	<ReversibleDrivingPositionInd>N</ReversibleDrivingPositionInd>
+
+	<DriverSeatTypeCategoryTable>
+		<DriverSeatTypeCategoryGroup>
+			<DriverSeatTypeCategoryCode>B</DriverSeatTypeCategoryCode>
+		</DriverSeatTypeCategoryGroup>
+	</DriverSeatTypeCategoryTable>
+
+	<!--Seating Positions-->
+
+	<!--Load Platform-->
+	<LoadPlatformTable>
+		<LoadPlatformGroup>
+			<LoadPlatformLength>1088</LoadPlatformLength>
+			<LoadPlatformWidth>1340</LoadPlatformWidth>
+			<LoadPlatformHeightAboveGround>800</LoadPlatformHeightAboveGround>
+			<LoadPlatformLoadCapacity>450</LoadPlatformLoadCapacity>
+		</LoadPlatformGroup>
+	</LoadPlatformTable>
+	<!--Load Platform-->
+
+	<!--Three Point Lifting-->
+	<!--Three point lifting-->
+
+	<!--Additional Coupling Points-->
+	<AdditionalCouplingPointsCode>N</AdditionalCouplingPointsCode>
+	<!--Additional Coupling Points-->
+
+	<!--POWER TAKE OFFs-->
+	<!--POWER TAKE OFFs-->
+
+	
+    </CocDataGroup>
+  </Body>
+</InitialVehicleInformation>
