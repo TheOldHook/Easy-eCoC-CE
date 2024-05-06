@@ -3,22 +3,7 @@ import requests
 import uuid
 from time import time
 import sqlite3
-
-# production link https://maskinporten.no/token	
-#	Set to 'https://www.utv.vegvesen.no' for TEST and 'https://www.vegvesen.no' for PROD
-#    "scope": "svv:kjoretoy/ecoc.delegert svv:kjoretoy/ecoc",
-
-# for development
-# config = {
-#     "issuer": "",
-#     "audience": "https://test.maskinporten.no/",
-#     "resource": "https://www.utv.vegvesen.no",
-#     "scope": "svv:kjoretoy/ecoc",
-#     "keystore_password": "Keystore Password", # not implemented but saved in database for future use
-#     "keystore_alias": "Keystore Alias", # not implemented
-#     "keystore_alias_password": "Keystore Alias Password", # not implemented
-# }
-
+import base64
 
 
 def create_database():
@@ -54,6 +39,7 @@ def load_config_from_db():
         c.execute("SELECT * FROM samarbeidsportalen LIMIT 1") 
         row = c.fetchone()
         conn.close()
+        
 
         if row is not None:
             print("Configuration loaded successfully.")
@@ -98,12 +84,12 @@ def get_access_token():
     header = {
         "alg": "RS256",
         "x5c": x5c,
-        #"kid": "min_egen_nokkel"
     }
     
     print(f"Header: {header}")
 
-
+    # Ensure the issued at and expiration times account for possible clock skew
+    
     payload = {
         "aud": config['audience'],
         "scope": config['scope'],

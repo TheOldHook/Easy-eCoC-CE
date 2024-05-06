@@ -1,4 +1,5 @@
 import locale
+import time
 locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
 
 # Standard library imports
@@ -64,6 +65,7 @@ def main_app():
         print(f"Debug: The file_path is {file_path}")
         
         access_token = get_access_token()
+        
         if access_token:
             print("Access token retrieved successfully.")
         else:
