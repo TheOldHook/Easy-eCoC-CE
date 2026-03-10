@@ -17,13 +17,38 @@ from jose import jwk
 
 from samarbeidsportalen import get_access_token
 
-# Test environment URLs
-VEGVESEN_SUBMIT_URL = "https://synt.utv.vegvesen.no/ws/no/vegvesen/kjoretoy/felles/innmelding/meldingompreregistrering/v1/opprette"
-VEGVESEN_DELETE_URL = "https://synt.utv.vegvesen.no/ws/no/vegvesen/kjoretoy/felles/innmelding/meldingompreregistrering/v1/slette/understellsnummer"
+# Environment URLs
+_ENVIRONMENTS = {
+    "Test": {
+        "submit": "https://synt.utv.vegvesen.no/ws/no/vegvesen/kjoretoy/felles/innmelding/meldingompreregistrering/v1/opprette",
+        "delete": "https://synt.utv.vegvesen.no/ws/no/vegvesen/kjoretoy/felles/innmelding/meldingompreregistrering/v1/slette/understellsnummer",
+    },
+    "Production": {
+        "submit": "https://vegvesen.no/ws/no/vegvesen/kjoretoy/felles/innmelding/meldingompreregistrering/v1/opprette",
+        "delete": "https://vegvesen.no/ws/no/vegvesen/kjoretoy/felles/innmelding/meldingompreregistrering/v1/slette/understellsnummer",
+    },
+}
 
-# Production environment URLs (uncomment to use)
-# VEGVESEN_SUBMIT_URL = "https://vegvesen.no/ws/no/vegvesen/kjoretoy/felles/innmelding/meldingompreregistrering/v1/opprette"
-# VEGVESEN_DELETE_URL = "https://vegvesen.no/ws/no/vegvesen/kjoretoy/felles/innmelding/meldingompreregistrering/v1/slette/understellsnummer"
+_current_environment = "Test"
+
+
+def get_environment():
+    return _current_environment
+
+
+def set_environment(env_name):
+    global _current_environment
+    if env_name not in _ENVIRONMENTS:
+        raise ValueError(f"Unknown environment: {env_name}")
+    _current_environment = env_name
+
+
+def get_submit_url():
+    return _ENVIRONMENTS[_current_environment]["submit"]
+
+
+def get_delete_url():
+    return _ENVIRONMENTS[_current_environment]["delete"]
 
 DB_PATH = 'vegvesen_data.db'
 
@@ -65,12 +90,15 @@ def create_settings_table():
 
 
 def load_settings_from_db():
-    """Load samarbeidsportalen settings. Returns a dict or None."""
+    """Load samarbeidsportalen settings for the current environment. Returns a dict or None."""
     conn = None
     try:
         conn = sqlite3.connect(DB_PATH)
         c = conn.cursor()
-        c.execute("SELECT * FROM samarbeidsportalen LIMIT 1")
+        c.execute(
+            "SELECT issuer, audience, resource, scope FROM samarbeidsportalen WHERE environment = ? LIMIT 1",
+            (_current_environment,)
+        )
         row = c.fetchone()
         if row:
             return {
@@ -78,9 +106,6 @@ def load_settings_from_db():
                 "audience": row[1],
                 "resource": row[2],
                 "scope": row[3],
-                "keystore_password": row[4],
-                "keystore_alias": row[5],
-                "keystore_alias_password": row[6],
             }
         return None
     except sqlite3.Error as e:
@@ -92,40 +117,31 @@ def load_settings_from_db():
             conn.close()
 
 
-def save_settings_to_db(issuer, audience, resource, scope,
-                        keystore_password, keystore_alias,
-                        keystore_alias_password):
-    """Save samarbeidsportalen settings. Applies defaults for empty values."""
+def save_settings_to_db(issuer, audience, resource, scope):
+    """Save samarbeidsportalen settings for the current environment. Applies defaults for empty values."""
     if not audience:
         audience = "https://maskinporten.no/"
     if not scope:
         scope = "svv:kjoretoy/ecoc"
     if not resource:
         resource = "https://www.vegvesen.no"
-    if not keystore_password:
-        keystore_password = "Keystore Password"
-    if not keystore_alias:
-        keystore_alias = "Keystore Alias"
-    if not keystore_alias_password:
-        keystore_alias_password = "Keystore Alias Password"
 
     conn = None
     try:
         conn = sqlite3.connect(DB_PATH)
         c = conn.cursor()
-        c.execute("DELETE FROM samarbeidsportalen")
+        c.execute("DELETE FROM samarbeidsportalen WHERE environment = ?", (_current_environment,))
         c.execute(
             "INSERT INTO samarbeidsportalen "
-            "(issuer, audience, resource, scope, keystore_password, keystore_alias, keystore_alias_password) "
-            "VALUES (?, ?, ?, ?, ?, ?, ?)",
-            (issuer, audience, resource, scope,
-             keystore_password, keystore_alias, keystore_alias_password)
+            "(environment, issuer, audience, resource, scope) "
+            "VALUES (?, ?, ?, ?, ?)",
+            (_current_environment, issuer, audience, resource, scope)
         )
         conn.commit()
-        print("Settings saved.")
+        print(f"Settings saved for {_current_environment}.")
 
         from samarbeidsportalen import load_config_from_db
-        load_config_from_db()
+        load_config_from_db(_current_environment)
     except sqlite3.Error as e:
         print(f"Database error: {e}")
         logging.error(f"Database error: {e}")
@@ -285,7 +301,7 @@ def fetch_vegvesen_data(file_path, iviref_uid, avgiftskode, sitteplasser, sengep
     }
 
     data_json = json.dumps(data)
-    response = requests.post(VEGVESEN_SUBMIT_URL, headers=headers, data=data_json)
+    response = requests.post(get_submit_url(), headers=headers, data=data_json)
     print(response)
     print(f"Debug: Headers: {headers}")
     print(f"Debug: HTTP Status Code: {response.status_code}")
@@ -335,7 +351,7 @@ def delete_vegvesen_entry(vin):
         return False, None, "Could not get an access token."
 
     headers = {'Authorization': f'Bearer {access_token}'}
-    url = f"{VEGVESEN_DELETE_URL}/{vin}"
+    url = f"{get_delete_url()}/{vin}"
     response = requests.delete(url, headers=headers)
 
     server_response = response.text

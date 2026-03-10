@@ -17,6 +17,7 @@ The Easy eCoC (Electronic Certificate of Conformity) application facilitates the
 
 - **XML Processing**: Parse and manipulate IVI XML files for vehicle data submission.
 - **Data Submission**: Automate the process of sending vehicle data to Vegvesen and handling responses.
+- **Environment Switching**: Toggle between Test (`synt.utv.vegvesen.no`) and Production (`vegvesen.no`) environments from the Settings tab, with separate credentials stored per environment.
 - **Secure Communication**: Utilize OAuth2 tokens for authenticated requests to Vegvesen.
 - **Local Data Storage**: Store application settings and response data securely using SQLite.
 - **User Interface**: A GUI built with ttkbootstrap, providing a user-friendly experience for managing vehicle registrations.

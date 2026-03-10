@@ -374,6 +374,42 @@ def main_app():
 
     # ==================== Tab 2: Settings ====================
 
+    # --- Environment selector ---
+    env_frame = ttk.LabelFrame(tab2, text="Environment")
+    env_frame.pack(fill="x", padx=20, pady=(20, 10), ipadx=10, ipady=10)
+
+    env_var = tk.StringVar(value=svc.get_environment())
+
+    def on_env_change():
+        selected = env_var.get()
+        if selected == "Production":
+            confirm = messagebox.askyesno(
+                "Warning",
+                "You are switching to the PRODUCTION environment.\n"
+                "Submissions will create real registrations.\n\nAre you sure?")
+            if not confirm:
+                env_var.set("Test")
+                return
+        svc.set_environment(selected)
+        env_status_label.config(
+            text=f"Active: {selected}",
+            bootstyle='danger' if selected == "Production" else 'success')
+        populate_settings_fields()
+
+    env_test_rb = ttk.Radiobutton(
+        env_frame, text="Test (synt.utv.vegvesen.no)",
+        variable=env_var, value="Test", command=on_env_change, bootstyle='success')
+    env_test_rb.pack(side='left', padx=(10, 20), pady=5)
+
+    env_prod_rb = ttk.Radiobutton(
+        env_frame, text="Production (vegvesen.no)",
+        variable=env_var, value="Production", command=on_env_change, bootstyle='danger')
+    env_prod_rb.pack(side='left', padx=(0, 20), pady=5)
+
+    env_status_label = ttk.Label(env_frame, text=f"Active: {svc.get_environment()}",
+                                 bootstyle='success')
+    env_status_label.pack(side='left', padx=10, pady=5)
+
     samarbeidsportalen_frame = ttk.LabelFrame(tab2, text="Samarbeidsportalen")
     samarbeidsportalen_frame.pack(fill="x", padx=20, pady=20, ipadx=10, ipady=10)
 
@@ -388,26 +424,19 @@ def main_app():
     audience_entry = add_labeled_entry(samarbeidsportalen_frame, "Audience:")
     scope_entry = add_labeled_entry(samarbeidsportalen_frame, "Scope:")
     resource_entry = add_labeled_entry(samarbeidsportalen_frame, "Resource:")
-    keystore_password_entry = add_labeled_entry(samarbeidsportalen_frame, "Keystore Password:")
-    keystore_alias_entry = add_labeled_entry(samarbeidsportalen_frame, "Keystore Alias:")
-    keystore_alias_password_entry = add_labeled_entry(samarbeidsportalen_frame, "Keystore Alias Password:")
 
     def populate_settings_fields():
         settings = svc.load_settings_from_db()
-        if not settings:
-            return
         entries = [
             (issuer_entry, "issuer"),
             (audience_entry, "audience"),
             (resource_entry, "resource"),
             (scope_entry, "scope"),
-            (keystore_password_entry, "keystore_password"),
-            (keystore_alias_entry, "keystore_alias"),
-            (keystore_alias_password_entry, "keystore_alias_password"),
         ]
         for entry, key in entries:
             entry.delete(0, tk.END)
-            entry.insert(0, settings[key])
+            if settings:
+                entry.insert(0, settings[key])
 
     def on_save_settings():
         svc.save_settings_to_db(
@@ -415,9 +444,6 @@ def main_app():
             audience_entry.get(),
             resource_entry.get(),
             scope_entry.get(),
-            keystore_password_entry.get(),
-            keystore_alias_entry.get(),
-            keystore_alias_password_entry.get(),
         )
         populate_settings_fields()
 

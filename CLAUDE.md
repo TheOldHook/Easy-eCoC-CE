@@ -26,8 +26,9 @@ uv run python ecoc-gui.py
 ## Architecture
 - **GUI**: Multi-tab interface (eCoC workflow, Settings, JWT Keygen, Certificate Import)
 - **Auth**: JWT-based OAuth2 tokens via Samarbeidsportalen
-- **Data**: SQLite with two tables: `responses` (API responses) and `samarbeidsportalen` (auth config)
-- **API**: Vegvesen vehicle pre-registration endpoint (test + production environments)
+- **Data**: SQLite with two tables: `responses` (API responses) and `samarbeidsportalen` (auth config, keyed by environment)
+- **API**: Vegvesen vehicle pre-registration endpoint (test + production environments, switchable at runtime via Settings tab)
+- **Environments**: Test and Production URLs are managed in `ecoc_service.py` via `_ENVIRONMENTS` dict; settings (issuer, audience, scope, resource) are stored per environment in the DB
 
 ## Security Files (not in repo)
 - `virksomhet.cer` — Company certificate (full chain, no BEGIN/END lines)
