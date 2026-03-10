@@ -12,6 +12,7 @@ import pyperclip
 import xml.etree.ElementTree as ET
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import serialization, asymmetric
+from cryptography.hazmat.primitives.serialization import pkcs12
 from jose import jwk
 
 from samarbeidsportalen import get_access_token
@@ -385,6 +386,47 @@ def generate_keypair():
 
 
 # --- Utility ---
+
+def import_p12_certificate(p12_path, password):
+    """Import a .p12 certificate, extracting private key, public key, and cert chain."""
+    with open(p12_path, "rb") as f:
+        p12_data = f.read()
+
+    private_key, certificate, additional_certs = pkcs12.load_key_and_certificates(
+        p12_data, password.encode("utf-8"), default_backend()
+    )
+
+    if private_key is None:
+        raise ValueError("No private key found in the .p12 file.")
+    if certificate is None:
+        raise ValueError("No certificate found in the .p12 file.")
+
+    # Write private key
+    with open("private_key.pem", "wb") as f:
+        f.write(private_key.private_bytes(
+            encoding=serialization.Encoding.PEM,
+            format=serialization.PrivateFormat.TraditionalOpenSSL,
+            encryption_algorithm=serialization.NoEncryption()
+        ))
+
+    # Write public key
+    public_key = certificate.public_key()
+    with open("public_key.pem", "wb") as f:
+        f.write(public_key.public_bytes(
+            encoding=serialization.Encoding.PEM,
+            format=serialization.PublicFormat.SubjectPublicKeyInfo
+        ))
+
+    # Write full chain to virksomhet.cer (base64 DER, no BEGIN/END lines)
+    all_certs = [certificate] + list(additional_certs or [])
+    with open("virksomhet.cer", "w") as f:
+        for cert in all_certs:
+            der_bytes = cert.public_bytes(serialization.Encoding.DER)
+            b64 = base64.b64encode(der_bytes).decode("ascii")
+            f.write(b64 + "\n")
+
+    return f"Imported {len(all_certs)} certificate(s).\nFiles written: private_key.pem, public_key.pem, virksomhet.cer"
+
 
 def generate_ivi_ref_id():
     return str(uuid.uuid4())

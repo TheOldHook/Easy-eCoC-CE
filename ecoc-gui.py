@@ -445,6 +445,57 @@ def main_app():
     jwt_output_text = tk.Text(frame3_tab3, wrap='word', width=50, height=10)
     jwt_output_text.pack()
 
+    # ==================== Tab 4: Certificate Import ====================
+
+    tab4 = ttk.Frame(notebook)
+    notebook.add(tab4, text="Certificate Import")
+
+    cert_frame = ttk.LabelFrame(tab4, text="Import .p12 Certificate")
+    cert_frame.pack(fill="x", padx=20, pady=20, ipadx=10, ipady=10)
+
+    p12_file_label = ttk.Label(cert_frame, text="P12 File:")
+    p12_file_label.pack(pady=(10, 0))
+
+    p12_file_entry = ttk.Entry(cert_frame, width=50, justify='center')
+    p12_file_entry.pack()
+
+    def browse_p12():
+        path = filedialog.askopenfilename(
+            title="Select .p12 Certificate",
+            filetypes=[("PKCS12 files", "*.p12"), ("PFX files", "*.pfx"), ("All files", "*.*")])
+        if path:
+            p12_file_entry.delete(0, tk.END)
+            p12_file_entry.insert(0, path)
+
+    p12_browse_button = ttk.Button(
+        cert_frame, text="Browse", command=browse_p12, bootstyle='primary')
+    p12_browse_button.pack(pady=(5, 10))
+
+    p12_password_label = ttk.Label(cert_frame, text="Password:")
+    p12_password_label.pack()
+
+    p12_password_entry = ttk.Entry(cert_frame, width=50, justify='center', show='*')
+    p12_password_entry.pack()
+
+    p12_status_label = ttk.Label(cert_frame, text="", wraplength=500)
+    p12_status_label.pack(pady=(10, 0))
+
+    def on_import_p12():
+        p12_path = p12_file_entry.get()
+        password = p12_password_entry.get()
+        if not p12_path:
+            p12_status_label.config(text="Please select a .p12 file.", bootstyle='danger')
+            return
+        try:
+            result = svc.import_p12_certificate(p12_path, password)
+            p12_status_label.config(text=result, bootstyle='success')
+        except Exception as e:
+            p12_status_label.config(text=f"Error: {e}", bootstyle='danger')
+
+    p12_import_button = ttk.Button(
+        cert_frame, text="Import Certificate", command=on_import_p12, bootstyle='warning')
+    p12_import_button.pack(pady=(10, 10))
+
     # --- Icon & startup ---
     icon = './img/Icon.png'
     root.iconphoto(True, PhotoImage(file=icon))
