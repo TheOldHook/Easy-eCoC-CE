@@ -2,7 +2,6 @@
 *.log
 *.cer
 *.pem
-*.xml
 /build/
 /dist/
 /*.spec
