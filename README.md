@@ -20,6 +20,7 @@ The Easy eCoC (Electronic Certificate of Conformity) application facilitates the
 - **Secure Communication**: Utilize OAuth2 tokens for authenticated requests to Vegvesen.
 - **Local Data Storage**: Store application settings and response data securely using SQLite.
 - **User Interface**: A GUI built with ttkbootstrap, providing a user-friendly experience for managing vehicle registrations.
+- **Certificate Import**: Import .p12/.pfx certificates directly from the GUI, extracting private key, public key, and full certificate chain.
 
 ## Installation
 
@@ -45,8 +46,12 @@ uv run python ecoc-gui.py
 Follow the GUI prompts to load XML files, enter vehicle information, and submit data to Vegvesen.
 
 You need to add your company certificate to be able to auth with Samarbeidsportalen and Vegvesen.
-virksomhet.cer = Full certchain without --BEGIN, --END-- (remove the lines from the original key).
-private_key.pem = Your company private key.
+The easiest way is to use the **Certificate Import** tab to import a .p12/.pfx file directly — this will extract:
+- `private_key.pem` — Your company private key
+- `public_key.pem` — Your company public key
+- `virksomhet.cer` — Full certificate chain (base64 DER, no BEGIN/END lines)
+
+Alternatively, you can provide these files manually.
 
 
 Contributing

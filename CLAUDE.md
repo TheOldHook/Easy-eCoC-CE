@@ -11,7 +11,7 @@ Python desktop GUI application that automates vehicle data submission to the Nor
 - **Libraries**: requests, pyperclip, cryptography, python-jose, jwt
 
 ## Key Files
-- `ecoc-gui.py` — Main entry point & GUI (3 tabs: Vegvesen eCoC, Settings, JWT Keygen)
+- `ecoc-gui.py` — Main entry point & GUI (4 tabs: Vegvesen eCoC, Settings, JWT Keygen, Certificate Import)
 - `samarbeidsportalen.py` — OAuth2 JWT token generation for Vegvesen API auth
 - `pubkeygen.py` — RSA key pair / JWK generation utility
 - `pyproject.toml` — Project config & dependencies (managed by uv)
@@ -24,7 +24,7 @@ uv run python ecoc-gui.py
 ```
 
 ## Architecture
-- **GUI**: Multi-tab interface (eCoC workflow, Settings, JWT Keygen)
+- **GUI**: Multi-tab interface (eCoC workflow, Settings, JWT Keygen, Certificate Import)
 - **Auth**: JWT-based OAuth2 tokens via Samarbeidsportalen
 - **Data**: SQLite with two tables: `responses` (API responses) and `samarbeidsportalen` (auth config)
 - **API**: Vegvesen vehicle pre-registration endpoint (test + production environments)
@@ -32,7 +32,8 @@ uv run python ecoc-gui.py
 ## Security Files (not in repo)
 - `virksomhet.cer` — Company certificate (full chain, no BEGIN/END lines)
 - `private_key.pem` — Company private key
-- These are in `.gitignore` and must be provided by the user
+- `public_key.pem` — Company public key
+- These are in `.gitignore` and can be imported from a .p12 certificate via the Certificate Import tab
 
 ## Conventions
 - Single-file GUI application pattern
