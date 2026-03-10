@@ -1,0 +1,13 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Easy eCoC",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/ecoc-gui.py",
+            "console": "integratedTerminal",
+            "justMyCode": false
+        }
+    ]
+}
