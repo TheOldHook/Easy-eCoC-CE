@@ -1,0 +1,13 @@
+[project]
+name = "easy-ecoc-ce"
+version = "0.1.0"
+description = "Automated vehicle data submission to Statens Vegvesen eCoC service"
+requires-python = ">=3.11"
+dependencies = [
+    "cryptography>=46.0.5",
+    "jwt>=1.4.0",
+    "pyperclip>=1.11.0",
+    "python-jose>=3.5.0",
+    "requests>=2.32.5",
+    "ttkbootstrap>=1.20.2",
+]

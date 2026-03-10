@@ -396,8 +396,8 @@ def main_app():
 
     # Create a frame for the Samarbeidsportalen settings
     samarbeidsportalen_frame = ttk.LabelFrame(
-        tab2, text="Samarbeidsportalen", padding="10 10 10 10")
-    samarbeidsportalen_frame.pack(fill="x", padx=20, pady=20)
+        tab2, text="Samarbeidsportalen")
+    samarbeidsportalen_frame.pack(fill="x", padx=20, pady=20, ipadx=10, ipady=10)
 
     global issuer_entry, audience_entry, scope_entry, resource_entry, keystore_password_entry, keystore_alias_entry, keystore_alias_password_entry
 

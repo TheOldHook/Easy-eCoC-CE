@@ -23,7 +23,7 @@ The Easy eCoC (Electronic Certificate of Conformity) application facilitates the
 
 ## Installation
 
-This application requires Python 3.6 or newer. Dependencies are managed using `pip`.
+This application requires Python 3.11 or newer. Dependencies are managed using [uv](https://docs.astral.sh/uv/).
 
 1. Clone the repository to your local machine:
 
@@ -32,14 +32,14 @@ git clone https://github.com/TheOldHook/Easy-eCoC-CE.git
 cd easy-ecoc-ce
 ```
 
-Install requirements
-```
-pip install -r requirements.txt
+2. Install dependencies:
+```bash
+uv sync
 ```
 
-Usage
-```
-python ecoc-gui.py
+3. Run the application:
+```bash
+uv run python ecoc-gui.py
 ```
 
 Follow the GUI prompts to load XML files, enter vehicle information, and submit data to Vegvesen.
