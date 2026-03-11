@@ -96,7 +96,7 @@ def load_settings_from_db():
         conn = sqlite3.connect(DB_PATH)
         c = conn.cursor()
         c.execute(
-            "SELECT issuer, audience, resource, scope FROM samarbeidsportalen WHERE environment = ? LIMIT 1",
+            "SELECT issuer, audience, resource, scope, kid FROM samarbeidsportalen WHERE environment = ? LIMIT 1",
             (_current_environment,)
         )
         row = c.fetchone()
@@ -106,6 +106,7 @@ def load_settings_from_db():
                 "audience": row[1],
                 "resource": row[2],
                 "scope": row[3],
+                "kid": row[4],
             }
         return None
     except sqlite3.Error as e:
@@ -117,7 +118,7 @@ def load_settings_from_db():
             conn.close()
 
 
-def save_settings_to_db(issuer, audience, resource, scope):
+def save_settings_to_db(issuer, audience, resource, scope, kid=""):
     """Save samarbeidsportalen settings for the current environment. Applies defaults for empty values."""
     if not audience:
         audience = "https://maskinporten.no/"
@@ -133,9 +134,9 @@ def save_settings_to_db(issuer, audience, resource, scope):
         c.execute("DELETE FROM samarbeidsportalen WHERE environment = ?", (_current_environment,))
         c.execute(
             "INSERT INTO samarbeidsportalen "
-            "(environment, issuer, audience, resource, scope) "
-            "VALUES (?, ?, ?, ?, ?)",
-            (_current_environment, issuer, audience, resource, scope)
+            "(environment, issuer, audience, resource, scope, kid) "
+            "VALUES (?, ?, ?, ?, ?, ?)",
+            (_current_environment, issuer, audience, resource, scope, kid)
         )
         conn.commit()
         print(f"Settings saved for {_current_environment}.")

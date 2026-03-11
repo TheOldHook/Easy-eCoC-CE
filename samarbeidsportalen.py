@@ -18,9 +18,15 @@ def create_database():
             issuer TEXT,
             audience TEXT,
             resource TEXT,
-            scope TEXT
+            scope TEXT,
+            kid TEXT
         )
         """)
+        # Migrate existing databases: add kid column if missing
+        c.execute("PRAGMA table_info(samarbeidsportalen)")
+        columns = [col[1] for col in c.fetchall()]
+        if "kid" not in columns:
+            c.execute("ALTER TABLE samarbeidsportalen ADD COLUMN kid TEXT")
         conn.commit()
         print("Database created successfully.")
     except sqlite3.Error as e:
@@ -37,10 +43,10 @@ def load_config_from_db(environment=None):
         c = conn.cursor()
         if environment:
             c.execute(
-                "SELECT environment, issuer, audience, resource, scope FROM samarbeidsportalen WHERE environment = ? LIMIT 1", (environment,))
+                "SELECT environment, issuer, audience, resource, scope, kid FROM samarbeidsportalen WHERE environment = ? LIMIT 1", (environment,))
         else:
             c.execute(
-                "SELECT environment, issuer, audience, resource, scope FROM samarbeidsportalen LIMIT 1")
+                "SELECT environment, issuer, audience, resource, scope, kid FROM samarbeidsportalen LIMIT 1")
         row = c.fetchone()
         conn.close()
 
@@ -52,6 +58,7 @@ def load_config_from_db(environment=None):
                 "audience": row[2],
                 "resource": row[3],
                 "scope": row[4],
+                "kid": row[5],
             }
         else:
             print("Database has no entries. Loading default configuration.")
@@ -98,7 +105,7 @@ def get_access_token():
     header = {
         "alg": "RS256",
         "x5c": x5c,
-        "kid": "min_egen_nokkel"  # Replace with your own key ID
+        "kid": config['kid']
     }
 
     print(f"Header: {header}")
@@ -120,11 +127,11 @@ def get_access_token():
                              algorithm='RS256', headers=header)
 
     # Make POST request to get the access token
-    #token_endpoint = payload['aud'] + 'token'
+    # token_endpoint = payload['aud'] + 'token'
     token_endpoint = "https://test.maskinporten.no/token"
 
     print(f"Token endpoint: {token_endpoint}")
-    
+
     response = requests.post(token_endpoint, headers={
         'Content-Type': 'application/x-www-form-urlencoded',
     }, data={

@@ -1,15 +1,13 @@
+import ecoc_service as svc
+from ttkbootstrap import Style
+import ttkbootstrap as ttk
+from tkinter import PhotoImage, messagebox, filedialog
+import tkinter as tk
+import logging
 import locale
 import time
 locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
 
-import logging
-import tkinter as tk
-from tkinter import PhotoImage, messagebox, filedialog
-
-import ttkbootstrap as ttk
-from ttkbootstrap import Style
-
-import ecoc_service as svc
 
 # Logging configuration
 logging.basicConfig(filename='application.log', level=logging.INFO,
@@ -156,14 +154,16 @@ def main_app():
                                   validatecommand=(validate_input_wrapper, '%S', '%P'))
     avgiftskode_entry.grid(row=1, column=1, padx=5, pady=5)
 
-    sittepl_label = ttk.Label(avgiftskode_frame, text="Sitteplasser Norsk Godkjenning:")
+    sittepl_label = ttk.Label(
+        avgiftskode_frame, text="Sitteplasser Norsk Godkjenning:")
     sittepl_label.grid(row=2, column=0, padx=5, pady=5)
     sitteplasserNorskGodkjenning_entry = ttk.Entry(avgiftskode_frame, width=10, justify='center',
                                                    validate='key',
                                                    validatecommand=(validate_input_wrapper, '%S', '%P'))
     sitteplasserNorskGodkjenning_entry.grid(row=2, column=1, padx=5, pady=5)
 
-    sengepl_label = ttk.Label(avgiftskode_frame, text="Sengeplasser Campingbil:")
+    sengepl_label = ttk.Label(
+        avgiftskode_frame, text="Sengeplasser Campingbil:")
     sengepl_label.grid(row=3, column=0, padx=5, pady=5)
     sengeplasserCampingbil_entry = ttk.Entry(avgiftskode_frame, width=10, justify='center',
                                              validate='key',
@@ -189,7 +189,8 @@ def main_app():
             return
 
         if svc.check_if_exists_in_database("ivi", iviref_uid) or svc.check_if_exists_in_database("vin", new_vin):
-            result_text.set("IVI Reference ID or VIN already exists in the database.")
+            result_text.set(
+                "IVI Reference ID or VIN already exists in the database.")
             return
 
         user_response = messagebox.askyesno(
@@ -219,7 +220,8 @@ def main_app():
 
     execute_button = ttk.Button(
         nested_frame, text="Send inn til Vegvesen", command=execute, bootstyle='warning')
-    execute_button.grid(row=0, column=0, pady=(10, 20), padx=(0, 10), sticky="w")
+    execute_button.grid(row=0, column=0, pady=(
+        10, 20), padx=(0, 10), sticky="w")
 
     def delete_entry():
         selected_items = table.selection()
@@ -235,7 +237,8 @@ def main_app():
         if not confirm:
             return
 
-        success, status_code, pretty_response = svc.delete_vegvesen_entry(vin_to_delete)
+        success, status_code, pretty_response = svc.delete_vegvesen_entry(
+            vin_to_delete)
         if success:
             populate_table()
             set_response_text(
@@ -258,7 +261,8 @@ def main_app():
     table_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
     table = ttk.Treeview(table_and_search_frame, height=30,
-                         columns=("iviReferanse", "understellsnummer", "datoTid", "meldingstekst"),
+                         columns=("iviReferanse", "understellsnummer",
+                                  "datoTid", "meldingstekst"),
                          yscrollcommand=table_scrollbar.set, show='headings')
     table.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
@@ -287,7 +291,8 @@ def main_app():
         for row in svc.search_responses(search_entry.get()):
             if all(row):
                 formatted_date = svc.format_date(row[2])
-                table.insert('', tk.END, values=(row[0], row[1], formatted_date, row[3]))
+                table.insert('', tk.END, values=(
+                    row[0], row[1], formatted_date, row[3]))
 
     search_button = ttk.Button(search_frame, bootstyle="warning",
                                text="Søk", command=on_search)
@@ -299,11 +304,13 @@ def main_app():
     response_and_ividoc_frame.pack(side=tk.BOTTOM, fill=tk.X, pady=(30, 0))
 
     result_text = tk.StringVar()
-    result_label = ttk.Label(response_and_ividoc_frame, textvariable=result_text)
+    result_label = ttk.Label(response_and_ividoc_frame,
+                             textvariable=result_text)
     result_label.pack(side=tk.TOP, fill=tk.X)
     result_text.set("Respons fra Vegvesen:")
 
-    response_scrollbar = ttk.Scrollbar(response_and_ividoc_frame, orient="vertical")
+    response_scrollbar = ttk.Scrollbar(
+        response_and_ividoc_frame, orient="vertical")
     response_scrollbar.pack(side=tk.LEFT, fill=tk.Y)
 
     response_text = tk.Text(response_and_ividoc_frame, wrap=tk.WORD, width=50,
@@ -312,7 +319,8 @@ def main_app():
     response_text.config(yscrollcommand=response_scrollbar.set)
     response_scrollbar.config(command=response_text.yview)
 
-    ividoc_scrollbar = ttk.Scrollbar(response_and_ividoc_frame, orient="vertical")
+    ividoc_scrollbar = ttk.Scrollbar(
+        response_and_ividoc_frame, orient="vertical")
     ividoc_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
     ividoc_text = tk.Text(response_and_ividoc_frame, wrap=tk.WORD, width=50,
@@ -324,8 +332,10 @@ def main_app():
     def set_response_text(text):
         response_text.config(state=tk.NORMAL)
         response_text.delete(1.0, tk.END)
-        response_text.tag_configure('success', foreground='green', font=('Arial', 12, 'bold'))
-        response_text.tag_configure('failure', foreground='red', font=('Arial', 12, 'bold'))
+        response_text.tag_configure(
+            'success', foreground='green', font=('Arial', 12, 'bold'))
+        response_text.tag_configure(
+            'failure', foreground='red', font=('Arial', 12, 'bold'))
 
         if "HTTP Status Code: 200" in text:
             response_text.insert(tk.END, text.split("\n")[0] + "\n", 'success')
@@ -341,7 +351,8 @@ def main_app():
         for row in svc.get_all_responses():
             if all(row):
                 formatted_date = svc.format_date(row[2])
-                table.insert('', tk.END, values=(row[0], row[1], formatted_date, row[3]))
+                table.insert('', tk.END, values=(
+                    row[0], row[1], formatted_date, row[3]))
             else:
                 print("Skipping row with empty or None fields.")
 
@@ -411,7 +422,8 @@ def main_app():
     env_status_label.pack(side='left', padx=10, pady=5)
 
     samarbeidsportalen_frame = ttk.LabelFrame(tab2, text="Samarbeidsportalen")
-    samarbeidsportalen_frame.pack(fill="x", padx=20, pady=20, ipadx=10, ipady=10)
+    samarbeidsportalen_frame.pack(
+        fill="x", padx=20, pady=20, ipadx=10, ipady=10)
 
     def add_labeled_entry(frame, label_text):
         label = tk.Label(frame, text=label_text)
@@ -420,7 +432,10 @@ def main_app():
         entry.pack()
         return entry
 
-    issuer_entry = add_labeled_entry(samarbeidsportalen_frame, "Issuer:")
+    issuer_entry = add_labeled_entry(
+        samarbeidsportalen_frame, "Issuer (client ID):")
+    kid_entry = add_labeled_entry(
+        samarbeidsportalen_frame, "KID (Public Key ID):")
     audience_entry = add_labeled_entry(samarbeidsportalen_frame, "Audience:")
     scope_entry = add_labeled_entry(samarbeidsportalen_frame, "Scope:")
     resource_entry = add_labeled_entry(samarbeidsportalen_frame, "Resource:")
@@ -429,6 +444,7 @@ def main_app():
         settings = svc.load_settings_from_db()
         entries = [
             (issuer_entry, "issuer"),
+            (kid_entry, "kid"),
             (audience_entry, "audience"),
             (resource_entry, "resource"),
             (scope_entry, "scope"),
@@ -436,7 +452,7 @@ def main_app():
         for entry, key in entries:
             entry.delete(0, tk.END)
             if settings:
-                entry.insert(0, settings[key])
+                entry.insert(0, settings.get(key) or "")
 
     def on_save_settings():
         svc.save_settings_to_db(
@@ -444,6 +460,7 @@ def main_app():
             audience_entry.get(),
             resource_entry.get(),
             scope_entry.get(),
+            kid_entry.get(),
         )
         populate_settings_fields()
 
@@ -500,7 +517,8 @@ def main_app():
     p12_password_label = ttk.Label(cert_frame, text="Password:")
     p12_password_label.pack()
 
-    p12_password_entry = ttk.Entry(cert_frame, width=50, justify='center', show='*')
+    p12_password_entry = ttk.Entry(
+        cert_frame, width=50, justify='center', show='*')
     p12_password_entry.pack()
 
     p12_status_label = ttk.Label(cert_frame, text="", wraplength=500)
@@ -510,7 +528,8 @@ def main_app():
         p12_path = p12_file_entry.get()
         password = p12_password_entry.get()
         if not p12_path:
-            p12_status_label.config(text="Please select a .p12 file.", bootstyle='danger')
+            p12_status_label.config(
+                text="Please select a .p12 file.", bootstyle='danger')
             return
         try:
             result = svc.import_p12_certificate(p12_path, password)
