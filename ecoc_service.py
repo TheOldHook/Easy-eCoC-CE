@@ -41,6 +41,9 @@ def set_environment(env_name):
     if env_name not in _ENVIRONMENTS:
         raise ValueError(f"Unknown environment: {env_name}")
     _current_environment = env_name
+    print(f"Environment switched to: {env_name}")
+    print(f"  Submit URL: {_ENVIRONMENTS[env_name]['submit']}")
+    print(f"  Delete URL: {_ENVIRONMENTS[env_name]['delete']}")
 
 
 def get_submit_url():
@@ -49,6 +52,7 @@ def get_submit_url():
 
 def get_delete_url():
     return _ENVIRONMENTS[_current_environment]["delete"]
+
 
 DB_PATH = 'vegvesen_data.db'
 
@@ -131,7 +135,8 @@ def save_settings_to_db(issuer, audience, resource, scope, kid=""):
     try:
         conn = sqlite3.connect(DB_PATH)
         c = conn.cursor()
-        c.execute("DELETE FROM samarbeidsportalen WHERE environment = ?", (_current_environment,))
+        c.execute("DELETE FROM samarbeidsportalen WHERE environment = ?",
+                  (_current_environment,))
         c.execute(
             "INSERT INTO samarbeidsportalen "
             "(environment, issuer, audience, resource, scope, kid) "
@@ -268,7 +273,7 @@ def fetch_vegvesen_data(file_path, iviref_uid, avgiftskode, sitteplasser, sengep
     """Submit vehicle data to Vegvesen. Returns (status_str, response_str)."""
     print(f"Debug: The file_path is {file_path}")
 
-    access_token = get_access_token()
+    access_token = get_access_token(_current_environment)
 
     if access_token is None:
         logging.error("Could not get an access token.")
@@ -310,11 +315,13 @@ def fetch_vegvesen_data(file_path, iviref_uid, avgiftskode, sitteplasser, sengep
 
     if response.status_code == 200:
         response_dict = json.loads(response.content)
-        iviReferanse = response_dict.get("iviIdentifikator", {}).get("iviReferanse", "")
+        iviReferanse = response_dict.get(
+            "iviIdentifikator", {}).get("iviReferanse", "")
         understellsnummer = response_dict.get(
             "iviIdentifikator", {}).get("understellsnummerMerke", {}).get("understellsnummer", "")
         datoTid = response_dict.get("datoTid", "")
-        meldingstekst = response_dict.get("melding", {}).get("meldingstekst", "")
+        meldingstekst = response_dict.get(
+            "melding", {}).get("meldingstekst", "")
 
         conn = None
         try:
@@ -323,7 +330,8 @@ def fetch_vegvesen_data(file_path, iviref_uid, avgiftskode, sitteplasser, sengep
             c.execute(
                 "INSERT INTO responses (iviReferanse, understellsnummer, datoTid, meldingstekst, IviDoc) "
                 "VALUES (?, ?, ?, ?, ?)",
-                (iviReferanse, understellsnummer, datoTid, meldingstekst, ivi_document)
+                (iviReferanse, understellsnummer,
+                 datoTid, meldingstekst, ivi_document)
             )
             conn.commit()
         except sqlite3.OperationalError as e:
@@ -337,7 +345,8 @@ def fetch_vegvesen_data(file_path, iviref_uid, avgiftskode, sitteplasser, sengep
 
     try:
         response_dict = json.loads(response.content)
-        pretty_response = json.dumps(response_dict, ensure_ascii=False, indent=4)
+        pretty_response = json.dumps(
+            response_dict, ensure_ascii=False, indent=4)
     except json.JSONDecodeError as e:
         pretty_response = response.content.decode('utf-8')
         logging.error(f"An error occurred: {e}")
@@ -347,7 +356,7 @@ def fetch_vegvesen_data(file_path, iviref_uid, avgiftskode, sitteplasser, sengep
 
 def delete_vegvesen_entry(vin):
     """Delete an entry from Vegvesen by VIN. Returns (success, status_code, pretty_response)."""
-    access_token = get_access_token()
+    access_token = get_access_token(_current_environment)
     if access_token is None:
         return False, None, "Could not get an access token."
 

@@ -80,9 +80,9 @@ if not os.path.exists('virksomhet.cer'):
     print("Created empty virksomhet.cer — import a .p12 certificate to populate it.")
 
 
-def get_access_token():
+def get_access_token(environment=None):
     global config
-    config = load_config_from_db()
+    config = load_config_from_db(environment)
     print("Getting access token...")
 
     if not os.path.exists('virksomhet.cer') or os.path.getsize('virksomhet.cer') == 0:
@@ -94,9 +94,7 @@ def get_access_token():
         return "private_key.pem is missing or empty. Import a .p12 certificate via the Certificate Import tab."
 
     with open('virksomhet.cer', 'r') as cert_file:
-        certificate_data = cert_file.read()
-
-    x5c = [certificate_data]
+        x5c = [line.strip() for line in cert_file if line.strip()]
 
     with open("private_key.pem", "r") as f:
         PRIVATE_KEY = f.read()
@@ -105,7 +103,7 @@ def get_access_token():
     header = {
         "alg": "RS256",
         "x5c": x5c,
-        "kid": config['kid']
+        # "kid": config['kid'] should not use kid when using x5c
     }
 
     print(f"Header: {header}")
@@ -127,8 +125,10 @@ def get_access_token():
                              algorithm='RS256', headers=header)
 
     # Make POST request to get the access token
-    # token_endpoint = payload['aud'] + 'token'
-    token_endpoint = "https://test.maskinporten.no/token"
+    if environment == "Test":
+        token_endpoint = "https://test.maskinporten.no/token"
+    else:
+        token_endpoint = "https://maskinporten.no/token"
 
     print(f"Token endpoint: {token_endpoint}")
 
