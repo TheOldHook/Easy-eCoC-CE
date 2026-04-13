@@ -24,8 +24,8 @@ _ENVIRONMENTS = {
         "delete": "https://synt.utv.vegvesen.no/ws/no/vegvesen/kjoretoy/felles/innmelding/meldingompreregistrering/v1/slette/understellsnummer",
     },
     "Production": {
-        "submit": "https://vegvesen.no/ws/no/vegvesen/kjoretoy/felles/innmelding/meldingompreregistrering/v1/opprette",
-        "delete": "https://vegvesen.no/ws/no/vegvesen/kjoretoy/felles/innmelding/meldingompreregistrering/v1/slette/understellsnummer",
+        "submit": "https://www.vegvesen.no/ws/no/vegvesen/kjoretoy/felles/innmelding/meldingompreregistrering/v1/opprette",
+        "delete": "https://www.vegvesen.no/ws/no/vegvesen/kjoretoy/felles/innmelding/meldingompreregistrering/v1/slette/understellsnummer",
     },
 }
 
@@ -302,7 +302,7 @@ def fetch_vegvesen_data(file_path, iviref_uid, avgiftskode, sitteplasser, sengep
         "avgiftsklassifisering": {
             "avgiftsKode": avgiftskode,
             "sitteplasserNorskGodkjenning": sitteplasser,
-            "sengeplasserCampingbil": sengeplasser
+            # "sengeplasserCampingbil": sengeplasser
         }
     }
 
