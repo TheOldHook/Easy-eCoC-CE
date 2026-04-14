@@ -73,7 +73,6 @@ git push origin v1.0.0
 The executables will be available in the GitHub Releases section:
 - `Easy-eCoC-Windows.exe` - Windows executable
 - `Easy-eCoC-Linux` - Linux executable
-- `Easy-eCoC-macOS` - macOS executable
 
 ### Local Build
 
