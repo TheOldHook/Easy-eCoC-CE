@@ -10,6 +10,10 @@ import sys
 import os
 locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
 
+# Windows-specific imports for taskbar
+if sys.platform == 'win32':
+    import ctypes
+
 
 # Logging configuration
 logging.basicConfig(filename='application.log', level=logging.INFO,
@@ -43,17 +47,213 @@ def main_app():
 
     # --- Main window setup ---
     root = ttk.Window()
-    root.title("Easy eCoC")
-    root.minsize(width=800, height=600)
+    root.geometry('1500x1050')
+    root.minsize(width=1000, height=600)
     root.protocol("WM_DELETE_WINDOW", on_closing)
+    
+    # Remove default title bar but keep in taskbar
+    root.overrideredirect(True)
+    
+    # Force window to appear in taskbar on Windows
+    if sys.platform == 'win32':
+        root.update_idletasks()
+        # Use Windows API to ensure taskbar presence
+        try:
+            GWL_EXSTYLE = -20
+            WS_EX_APPWINDOW = 0x00040000
+            WS_EX_TOOLWINDOW = 0x00000080
+            
+            hwnd = ctypes.windll.user32.GetParent(root.winfo_id())
+            style_flags = ctypes.windll.user32.GetWindowLongW(hwnd, GWL_EXSTYLE)
+            style_flags = style_flags & ~WS_EX_TOOLWINDOW
+            style_flags = style_flags | WS_EX_APPWINDOW
+            ctypes.windll.user32.SetWindowLongW(hwnd, GWL_EXSTYLE, style_flags)
+            
+            # Force window to redraw
+            root.withdraw()
+            root.deiconify()
+        except Exception as e:
+            logging.warning(f"Could not set taskbar attributes: {e}")
+    
+    # Set window icon AFTER window style modifications
+    try:
+        icon_path = resource_path('img/Icon.ico')
+        root.iconbitmap(default=icon_path)
+        # Also set using PhotoImage for better compatibility
+        icon_img = PhotoImage(file=resource_path('img/Icon.png'))
+        root.iconphoto(True, icon_img)
+    except Exception as e:
+        logging.warning(f"Could not set icon: {e}")
 
     style = Style()
     style.theme_use('darkly')
 
-    image = PhotoImage(file=resource_path('img/Icon.png'))
-    image = image.subsample(8, 8)
-    image_label = ttk.Label(root, image=image)
-    image_label.pack(side='left')
+    # --- Custom Title Bar ---
+    titlebar = ttk.Frame(root, bootstyle='dark')
+    titlebar.pack(fill='x', side='top')
+    
+    # Make titlebar draggable
+    def start_move(event):
+        root.x = event.x
+        root.y = event.y
+    
+    def do_move(event):
+        deltax = event.x - root.x
+        deltay = event.y - root.y
+        x = root.winfo_x() + deltax
+        y = root.winfo_y() + deltay
+        root.geometry(f"+{x}+{y}")
+    
+    titlebar.bind('<Button-1>', start_move)
+    titlebar.bind('<B1-Motion>', do_move)
+    
+    # Logo and title
+    title_left = ttk.Frame(titlebar)
+    title_left.pack(side='left', fill='y')
+    title_left.bind('<Button-1>', start_move)
+    title_left.bind('<B1-Motion>', do_move)
+    
+    try:
+        logo_img = PhotoImage(file=resource_path('img/Icon.png'))
+        logo_img = logo_img.subsample(12, 12)
+        logo_lbl = ttk.Label(title_left, image=logo_img)
+        logo_lbl.image = logo_img
+        logo_lbl.pack(side='left', padx=5, pady=3)
+        logo_lbl.bind('<Button-1>', start_move)
+        logo_lbl.bind('<B1-Motion>', do_move)
+    except:
+        pass
+    
+    title_lbl = ttk.Label(title_left, text="Easy eCoC", font=("Segoe UI", 10, "bold"))
+    title_lbl.pack(side='left', padx=5)
+    title_lbl.bind('<Button-1>', start_move)
+    title_lbl.bind('<B1-Motion>', do_move)
+    
+    # Window control buttons
+    btn_frame = ttk.Frame(titlebar)
+    btn_frame.pack(side='right')
+    
+    def minimize():
+        root.iconify()
+    
+    def maximize():
+        if root.state() == 'zoomed':
+            root.state('normal')
+        else:
+            root.state('zoomed')
+    
+    # Minimize button
+    min_btn = ttk.Button(btn_frame, text="−", width=3, command=minimize, bootstyle='dark')
+    min_btn.pack(side='left', padx=1)
+    
+    # Maximize button
+    max_btn = ttk.Button(btn_frame, text="□", width=3, command=maximize, bootstyle='dark')
+    max_btn.pack(side='left', padx=1)
+    
+    # Close button
+    close_btn = ttk.Button(btn_frame, text="✕", width=3, command=on_closing, bootstyle='danger')
+    close_btn.pack(side='left', padx=1)
+
+    # --- Add Resize Functionality ---
+    root.resizable_border = None
+    root.resize_start_x = None
+    root.resize_start_y = None
+    root.resize_start_w = None
+    root.resize_start_h = None
+    root.resize_start_pos_x = None
+    root.resize_start_pos_y = None
+    
+    def get_resize_cursor(x, y, width, height):
+        """Determine which edge/corner is being hovered"""
+        edge_size = 5
+        corner_size = 15
+        
+        on_left = x < edge_size
+        on_right = x > width - edge_size
+        on_top = y < edge_size
+        on_bottom = y > height - edge_size
+        
+        if (on_left and on_top) or (on_right and on_bottom):
+            return "size_nw_se"
+        elif (on_right and on_top) or (on_left and on_bottom):
+            return "size_ne_sw"
+        elif on_left or on_right:
+            return "size_we"
+        elif on_top or on_bottom:
+            return "size_ns"
+        return ""
+    
+    def on_mouse_move(event):
+        """Change cursor when hovering over edges"""
+        if root.resize_start_x is not None:
+            return  # Already resizing
+        
+        cursor = get_resize_cursor(event.x, event.y, root.winfo_width(), root.winfo_height())
+        root.config(cursor=cursor if cursor else "")
+    
+    def on_resize_start(event):
+        """Start resize operation"""
+        edge_size = 5
+        x, y = event.x, event.y
+        width, height = root.winfo_width(), root.winfo_height()
+        
+        on_left = x < edge_size
+        on_right = x > width - edge_size
+        on_top = y < edge_size
+        on_bottom = y > height - edge_size
+        
+        if on_left or on_right or on_top or on_bottom:
+            root.resizable_border = {
+                'left': on_left, 'right': on_right,
+                'top': on_top, 'bottom': on_bottom
+            }
+            root.resize_start_x = event.x_root
+            root.resize_start_y = event.y_root
+            root.resize_start_w = root.winfo_width()
+            root.resize_start_h = root.winfo_height()
+            root.resize_start_pos_x = root.winfo_x()
+            root.resize_start_pos_y = root.winfo_y()
+    
+    def on_resize_motion(event):
+        """Handle resize dragging"""
+        if root.resizable_border is None:
+            return
+        
+        dx = event.x_root - root.resize_start_x
+        dy = event.y_root - root.resize_start_y
+        
+        new_width = root.resize_start_w
+        new_height = root.resize_start_h
+        new_x = root.resize_start_pos_x
+        new_y = root.resize_start_pos_y
+        
+        if root.resizable_border['right']:
+            new_width = max(1000, root.resize_start_w + dx)
+        if root.resizable_border['left']:
+            new_width = max(1000, root.resize_start_w - dx)
+            if new_width > 1000:
+                new_x = root.resize_start_pos_x + dx
+        if root.resizable_border['bottom']:
+            new_height = max(600, root.resize_start_h + dy)
+        if root.resizable_border['top']:
+            new_height = max(600, root.resize_start_h - dy)
+            if new_height > 600:
+                new_y = root.resize_start_pos_y + dy
+        
+        root.geometry(f"{new_width}x{new_height}+{new_x}+{new_y}")
+    
+    def on_resize_release(event):
+        """End resize operation"""
+        root.resizable_border = None
+        root.resize_start_x = None
+        root.resize_start_y = None
+        root.config(cursor="")
+    
+    # Bind resize events to root window
+    root.bind('<Motion>', on_mouse_move)
+    root.bind('<Button-1>', on_resize_start, add='+')
+    root.bind('<B1-Motion>', on_resize_motion, add='+')
+    root.bind('<ButtonRelease-1>', on_resize_release, add='+')
 
     # --- Notebook / Tabs ---
     notebook = ttk.Notebook(root)
@@ -68,30 +268,32 @@ def main_app():
     notebook.add(tab3, text="JWT Keygen")
 
     # ==================== Tab 1: Vegvesen eCoC ====================
+    # Use grid for better resize performance
 
     inner_frame = ttk.Frame(tab1)
-    inner_frame.pack(side='top', fill='both', expand=True, padx=20, pady=20)
-
-    vertical_divider = tk.Frame(inner_frame, width=5, bg='grey')
-    vertical_divider.pack(side='left', fill='y')
+    inner_frame.pack(fill='both', expand=True, padx=8, pady=8)
+    
+    # Configure grid to expand
+    inner_frame.grid_columnconfigure(0, weight=1)
+    inner_frame.grid_columnconfigure(1, weight=1)
+    inner_frame.grid_columnconfigure(2, weight=1)
+    inner_frame.grid_columnconfigure(3, weight=1)
+    inner_frame.grid_rowconfigure(0, weight=1)
 
     frame1 = ttk.Frame(inner_frame)
-    frame1.pack(side='left', fill='both', expand=True, padx=20, pady=20)
+    frame1.grid(row=0, column=0, sticky='nsew', padx=3)
 
     frame2 = ttk.Frame(inner_frame)
-    frame2.pack(side='left', fill='both', expand=True, padx=20, pady=20)
+    frame2.grid(row=0, column=1, sticky='nsew', padx=3)
 
     frame3 = ttk.Frame(inner_frame)
-    frame3.pack(side='left', fill='both', expand=True, padx=20, pady=20)
+    frame3.grid(row=0, column=2, sticky='nsew', padx=3)
 
     bottom_frame = ttk.Frame(inner_frame)
-    bottom_frame.pack(side='left', fill='both', expand=True, padx=20, pady=20)
+    bottom_frame.grid(row=0, column=3, sticky='nsew', padx=3)
 
     frame4 = ttk.Frame(bottom_frame)
-    frame4.pack(side='top', fill='both', expand=True, padx=20, pady=20)
-
-    frame_line = tk.Frame(root, height=5, bg='grey')
-    frame_line.pack(fill='x')
+    frame4.pack(fill='both', expand=True)
 
     # --- Frame 1: XML form ---
 
@@ -187,10 +389,10 @@ def main_app():
     avgiftskode_entry.insert(0, "0")
     sengeplasserCampingbil_entry.insert(0, "0")
 
-    # --- Execute / Delete buttons ---
+    # --- Execute / Delete buttons (improved design) ---
 
-    nested_frame = ttk.Frame(frame1, relief='solid', borderwidth=0)
-    nested_frame.pack(side=tk.TOP, pady=5)
+    button_container = ttk.Frame(frame1)
+    button_container.pack(side=tk.TOP, pady=15, padx=20, fill='x')
 
     def execute():
         file_path = file_entry.get()
@@ -231,10 +433,15 @@ def main_app():
         populate_table()
         time.sleep(2)
 
+    # Send button - primary action, more prominent
     execute_button = ttk.Button(
-        nested_frame, text="Send inn til Vegvesen", command=execute, bootstyle='warning')
-    execute_button.grid(row=0, column=0, pady=(
-        10, 20), padx=(0, 10), sticky="w")
+        button_container, 
+        text="✓ Send inn til Vegvesen", 
+        command=execute, 
+        bootstyle='success',
+        width=30
+    )
+    execute_button.pack(pady=(0, 8), fill='x')
 
     def delete_entry():
         selected_items = table.selection()
@@ -261,9 +468,15 @@ def main_app():
                 f"Failed to delete entry with VIN: {vin_to_delete}. "
                 f"HTTP Status Code: {status_code}\nServer Response: {pretty_response}")
 
+    # Delete button - secondary action, danger styling
     delete_button = ttk.Button(
-        nested_frame, text="Slett fra Vegvesen", command=delete_entry, bootstyle='danger')
-    delete_button.grid(padx=5, pady=5)
+        button_container, 
+        text="✕ Slett fra Vegvesen", 
+        command=delete_entry, 
+        bootstyle='danger',
+        width=30
+    )
+    delete_button.pack(fill='x')
 
     # ==================== Frame 3: Table & Response ====================
 
@@ -554,12 +767,10 @@ def main_app():
         cert_frame, text="Import Certificate", command=on_import_p12, bootstyle='warning')
     p12_import_button.pack(pady=(10, 10))
 
-    # --- Icon & startup ---
-    icon = resource_path('img/Icon.png')
-    root.iconphoto(True, PhotoImage(file=icon))
-
+    # --- Startup ---
     svc.create_database()
     populate_table()
+    center_window(root)
     root.mainloop()
 
 

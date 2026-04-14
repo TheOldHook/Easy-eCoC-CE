@@ -29,7 +29,7 @@ _ENVIRONMENTS = {
     },
 }
 
-_current_environment = "Test"
+_current_environment = "Production"
 
 
 def get_environment():
