@@ -54,8 +54,51 @@ The easiest way is to use the **Certificate Import** tab to import a .p12/.pfx f
 
 Alternatively, you can provide these files manually.
 
+## Building Executables
 
-Contributing
+### Automated Build (GitHub Actions)
+
+The project includes a GitHub Actions workflow that automatically builds executables for **Windows, Linux, and macOS**:
+
+- **On every push to main/master**: Creates build artifacts for all platforms
+- **On tagged releases** (e.g., `v1.0.0`): Creates a GitHub release with executables for all platforms
+- **Manual trigger**: Can be run manually from the Actions tab
+
+To create a release:
+```bash
+git tag -a v1.0.0 -m "Release version 1.0.0"
+git push origin v1.0.0
+```
+
+The executables will be available in the GitHub Releases section:
+- `Easy-eCoC-Windows.exe` - Windows executable
+- `Easy-eCoC-Linux` - Linux executable
+- `Easy-eCoC-macOS` - macOS executable
+
+### Local Build
+
+To build the executable locally on your platform:
+
+1. Install development dependencies:
+```bash
+uv sync --group dev
+```
+
+2. Build using PyInstaller:
+```bash
+uv run pyinstaller easy-ecoc.spec
+```
+
+**Windows users** can simply run:
+```bash
+build.bat
+```
+
+The executable will be created in the `dist/` directory.
+
+**Note**: The spec file (`easy-ecoc.spec`) ensures all resources (images) are bundled with the executable and works across all platforms.
+
+## Contributing
 Contributions are welcome! Feel free to open issues for any bugs or feature requests, or submit pull requests for improvements.
 
 License

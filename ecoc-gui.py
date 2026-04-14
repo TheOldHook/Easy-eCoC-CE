@@ -6,12 +6,25 @@ import tkinter as tk
 import logging
 import locale
 import time
+import sys
+import os
 locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
 
 
 # Logging configuration
 logging.basicConfig(filename='application.log', level=logging.INFO,
                     format='%(asctime)s - %(levelname)s - %(message)s')
+
+
+def resource_path(relative_path):
+    """Get absolute path to resource, works for dev and for PyInstaller"""
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+    
+    return os.path.join(base_path, relative_path)
 
 
 def center_window(window):
@@ -37,7 +50,7 @@ def main_app():
     style = Style()
     style.theme_use('darkly')
 
-    image = PhotoImage(file='./img/Icon.png')
+    image = PhotoImage(file=resource_path('img/Icon.png'))
     image = image.subsample(8, 8)
     image_label = ttk.Label(root, image=image)
     image_label.pack(side='left')
@@ -542,7 +555,7 @@ def main_app():
     p12_import_button.pack(pady=(10, 10))
 
     # --- Icon & startup ---
-    icon = './img/Icon.png'
+    icon = resource_path('img/Icon.png')
     root.iconphoto(True, PhotoImage(file=icon))
 
     svc.create_database()
