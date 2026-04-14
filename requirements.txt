@@ -1,6 +1,0 @@
-requests
-pyperclip
-ttkbootstrap
-cryptography
-python-jose
-jwt

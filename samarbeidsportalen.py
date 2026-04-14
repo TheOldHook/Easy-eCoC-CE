@@ -1,3 +1,4 @@
+import os
 from jose import jwt
 import requests
 import uuid
@@ -13,15 +14,19 @@ def create_database():
         c = conn.cursor()
         c.execute("""
         CREATE TABLE IF NOT EXISTS samarbeidsportalen (
+            environment TEXT,
             issuer TEXT,
             audience TEXT,
             resource TEXT,
             scope TEXT,
-            keystore_password TEXT,
-            keystore_alias TEXT,
-            keystore_alias_password TEXT
+            kid TEXT
         )
         """)
+        # Migrate existing databases: add kid column if missing
+        c.execute("PRAGMA table_info(samarbeidsportalen)")
+        columns = [col[1] for col in c.fetchall()]
+        if "kid" not in columns:
+            c.execute("ALTER TABLE samarbeidsportalen ADD COLUMN kid TEXT")
         conn.commit()
         print("Database created successfully.")
     except sqlite3.Error as e:
@@ -31,25 +36,29 @@ def create_database():
             conn.close()
 
 
-def load_config_from_db():
+def load_config_from_db(environment=None):
     try:
         print("Loading configuration from database...")
         conn = sqlite3.connect('vegvesen_data.db')
         c = conn.cursor()
-        c.execute("SELECT * FROM samarbeidsportalen LIMIT 1")
+        if environment:
+            c.execute(
+                "SELECT environment, issuer, audience, resource, scope, kid FROM samarbeidsportalen WHERE environment = ? LIMIT 1", (environment,))
+        else:
+            c.execute(
+                "SELECT environment, issuer, audience, resource, scope, kid FROM samarbeidsportalen LIMIT 1")
         row = c.fetchone()
         conn.close()
 
         if row is not None:
-            print("Configuration loaded successfully.")
+            print(
+                f"Configuration loaded successfully for environment: {row[0]}")
             return {
-                "issuer": row[0],
-                "audience": row[1],
-                "resource": row[2],
-                "scope": row[3],
-                "keystore_password": row[4],
-                "keystore_alias": row[5],
-                "keystore_alias_password": row[6]
+                "issuer": row[1],
+                "audience": row[2],
+                "resource": row[3],
+                "scope": row[4],
+                "kid": row[5],
             }
         else:
             print("Database has no entries. Loading default configuration.")
@@ -65,16 +74,28 @@ create_database()
 config = load_config_from_db()
 
 
-with open('virksomhet.cer', 'r') as cert_file:
-    certificate_data = cert_file.read()
+if not os.path.exists('virksomhet.cer'):
+    with open('virksomhet.cer', 'w') as cert_file:
+        cert_file.write('')
+    print("Created empty virksomhet.cer — import a .p12 certificate to populate it.")
 
-x5c = [certificate_data]
 
-
-def get_access_token():
+def get_access_token(environment=None):
     global config
-    config = load_config_from_db()
+    config = load_config_from_db(environment)
     print("Getting access token...")
+
+    if not os.path.exists('virksomhet.cer') or os.path.getsize('virksomhet.cer') == 0:
+        print("virksomhet.cer is missing or empty. Import a .p12 certificate first.")
+        return "virksomhet.cer is missing or empty. Import a .p12 certificate via the Certificate Import tab."
+
+    if not os.path.exists('private_key.pem') or os.path.getsize('private_key.pem') == 0:
+        print("private_key.pem is missing or empty. Import a .p12 certificate first.")
+        return "private_key.pem is missing or empty. Import a .p12 certificate via the Certificate Import tab."
+
+    with open('virksomhet.cer', 'r') as cert_file:
+        x5c = [line.strip() for line in cert_file if line.strip()]
+
     with open("private_key.pem", "r") as f:
         PRIVATE_KEY = f.read()
 
@@ -82,7 +103,7 @@ def get_access_token():
     header = {
         "alg": "RS256",
         "x5c": x5c,
-        "kid": "min_egen_nokkel"  # Replace with your own key ID
+        # "kid": config['kid'] should not use kid when using x5c
     }
 
     print(f"Header: {header}")
@@ -97,9 +118,6 @@ def get_access_token():
         "exp": int(time()) + 60,
         "iat": int(time()),
         "jti": str(uuid.uuid4()),
-        # "keystore_password": config['keystore_password'],
-        # "keystore_alias": config['keystore_alias'],
-        # "keystore_alias_password": config['keystore_alias_password']
     }
 
     # Create and sign the JWT
@@ -107,9 +125,13 @@ def get_access_token():
                              algorithm='RS256', headers=header)
 
     # Make POST request to get the access token
-    token_endpoint = payload['aud'] + 'token'
+    if environment == "Test":
+        token_endpoint = "https://test.maskinporten.no/token"
+    else:
+        token_endpoint = "https://maskinporten.no/token"
+
     print(f"Token endpoint: {token_endpoint}")
-    # token_endpoint = "https://test.maskinporten.no/token"
+
     response = requests.post(token_endpoint, headers={
         'Content-Type': 'application/x-www-form-urlencoded',
     }, data={

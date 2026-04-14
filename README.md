@@ -17,13 +17,15 @@ The Easy eCoC (Electronic Certificate of Conformity) application facilitates the
 
 - **XML Processing**: Parse and manipulate IVI XML files for vehicle data submission.
 - **Data Submission**: Automate the process of sending vehicle data to Vegvesen and handling responses.
+- **Environment Switching**: Toggle between Test (`synt.utv.vegvesen.no`) and Production (`vegvesen.no`) environments from the Settings tab, with separate credentials stored per environment.
 - **Secure Communication**: Utilize OAuth2 tokens for authenticated requests to Vegvesen.
 - **Local Data Storage**: Store application settings and response data securely using SQLite.
 - **User Interface**: A GUI built with ttkbootstrap, providing a user-friendly experience for managing vehicle registrations.
+- **Certificate Import**: Import .p12/.pfx certificates directly from the GUI, extracting private key, public key, and full certificate chain.
 
 ## Installation
 
-This application requires Python 3.6 or newer. Dependencies are managed using `pip`.
+This application requires Python 3.11 or newer. Dependencies are managed using [uv](https://docs.astral.sh/uv/).
 
 1. Clone the repository to your local machine:
 
@@ -32,21 +34,25 @@ git clone https://github.com/TheOldHook/Easy-eCoC-CE.git
 cd easy-ecoc-ce
 ```
 
-Install requirements
-```
-pip install -r requirements.txt
+2. Install dependencies:
+```bash
+uv sync
 ```
 
-Usage
-```
-python ecoc-gui.py
+3. Run the application:
+```bash
+uv run python ecoc-gui.py
 ```
 
 Follow the GUI prompts to load XML files, enter vehicle information, and submit data to Vegvesen.
 
 You need to add your company certificate to be able to auth with Samarbeidsportalen and Vegvesen.
-virksomhet.cer = Full certchain without --BEGIN, --END-- (remove the lines from the original key).
-private_key.pem = Your company private key.
+The easiest way is to use the **Certificate Import** tab to import a .p12/.pfx file directly — this will extract:
+- `private_key.pem` — Your company private key
+- `public_key.pem` — Your company public key
+- `virksomhet.cer` — Full certificate chain (base64 DER, no BEGIN/END lines)
+
+Alternatively, you can provide these files manually.
 
 
 Contributing
