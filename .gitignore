@@ -1,5 +1,6 @@
 *.xml
 *.png
+!img/Icon.png
 *.db
 *.log
 *.cer
@@ -8,6 +9,7 @@
 /build/
 /dist/
 /*.spec
+!easy-ecoc.spec
 
 .venv
 /__pycache__/
