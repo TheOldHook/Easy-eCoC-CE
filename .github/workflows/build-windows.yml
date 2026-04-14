@@ -1,4 +1,4 @@
-name: Build Multi-Platform (Windows & Ubuntu)
+name: Build Multi-Platform
 
 on:
   push:
@@ -17,16 +17,23 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest, ubuntu-latest]
+        os: [windows-latest, ubuntu-latest, macos-latest]
         include:
           - os: windows-latest
             artifact_name: Easy-eCoC-Windows.exe
             build_name: Easy-eCoC.exe
+            continue_on_error: false
           - os: ubuntu-latest
             artifact_name: Easy-eCoC-Linux
             build_name: Easy-eCoC
+            continue_on_error: false
+          - os: macos-latest
+            artifact_name: Easy-eCoC-macOS
+            build_name: Easy-eCoC
+            continue_on_error: true
     
     runs-on: ${{ matrix.os }}
+    continue-on-error: ${{ matrix.continue_on_error }}
     timeout-minutes: 30
     
     steps:
